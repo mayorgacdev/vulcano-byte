@@ -1,6 +1,6 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Vulcano byte Blog',
+  title: 'Vulcano byte',
   author: 'Tails Azimuth',
   headerTitle: 'VulcanoByte',
   description: 'Programmers community focused on collaborative learning through workshops, challenges, and content sharing. Join us to enhance your skills and contribute to our blog.',
