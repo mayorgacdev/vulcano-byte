@@ -6,8 +6,8 @@ const siteMetadata = {
   description: 'Programmers community focused on collaborative learning through workshops, challenges, and content sharing. Join us to enhance your skills and contribute to our blog.',
   language: 'en-us',
   theme: 'system', // system, dark or light
-  siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
-  siteRepo: 'https://github.com/timlrx/tailwind-nextjs-starter-blog',
+  siteUrl: 'https://vulcanobyte.tech',
+  siteRepo: 'https://github.com/vulcanobyte.tech',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
   mastodon: 'https://mastodon.social/@mastodonuser',
