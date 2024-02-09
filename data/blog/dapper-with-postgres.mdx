@@ -1,0 +1,279 @@
+---
+title: Dapper + postgres procedures
+date: '2024-02-09'
+tags: ['dapper', 'postgres', 'performance']
+summary: 'Mejorar el rendimiento de una aplicación usando dapper y postgres procedures'
+ ---
+
+***[Johan Páiz](https://github.com/KaimDev)***
+
+# .Net 7.0 - 8.0 + Dapper + Postgres Procedures
+
+Este post es una guía para el uso de [Dapper](https://github.com/DapperLib/Dapper) con procedimientos almacenados de PostgreSql.
+
+### Dapper
+
+Dapper es un micro ORM desarrollado por los creadores de StackOverflow. Es una librería que extiende las funcionalidades de ADO.NET, permitiendo el mapeo de objetos a resultados de consultas SQL.
+
+### Procedimientos almacenados
+
+Los procedimientos almacenados son un conjunto de instrucciones SQL que se almacenan en el servidor de base de datos. Estos procedimientos pueden ser llamados desde una aplicación, permitiendo la ejecución de consultas complejas en el servidor.
+
+### Ventajas de usar procedimientos almacenados
+
+- **Rendimiento**: Los procedimientos almacenados son precompilados y almacenados en el servidor, lo que permite una ejecución más rápida.
+
+- **Seguridad**: Los procedimientos almacenados permiten el control de acceso a la base de datos, evitando la inyección de SQL.
+
+- **Mantenimiento**: Los procedimientos almacenados permiten la reutilización de código, lo que facilita el mantenimiento de la aplicación.
+
+### Estructura del proyecto
+
+```bash
+---Root
+    |---WebApi
+    |   |---Controllers
+    |   |   |---UserController.cs
+    |   |
+    |   |---Helpers
+    |   |   |---DatabaseOptions.cs
+    |   |
+    |   |---Models
+    |   |   |---User.cs
+    |   |
+    |   |---Services
+    |   |   |---DatabaseService.cs
+    |   |
+    |   |---Program.cs
+    |   |---appsettings.json
+    |
+    |---Database
+        |---Tables
+        |   |---User.sql
+        |
+        |---Procedures
+            |---InsertUser.sql
+```
+
+### Requerimientos
+
+- .Net 7.0 o .Net 8.0
+- Crear un proyecto web api de Asp.Net sin Aot.
+- Instalar el paquete de Dapper.
+
+```bash
+dotnet add package Dapper
+```
+
+- Instalar el paquete de Npgsql.
+
+```bash
+dotnet add package Npgsql
+```
+
+- PgAdmin o cualquier cliente de PostgreSql.
+
+---
+
+## Creación de la base de datos
+
+> **Nota**: Se hará uso de un ejemplo sencillo para comprender el uso de Dapper con procedimientos almacenados.
+
+- Crear la tabla de usuarios.
+
+***User.sql***
+```sql
+CREATE TABLE IF NOT EXISTS public."User"
+(
+    "UserId" SERIAL PRIMARY KEY,
+    "Name"   TEXT NOT NULL,
+    "Age"    INTEGER NOT NULL
+);
+```
+
+- Crear el procedimiento almacenado para insertar un usuario.
+
+***InsertUser.sql***
+```sql
+CREATE OR REPLACE PROCEDURE public."InsertUser"
+(
+    INOUT p_user_id BIGINT,
+    IN    p_name    CHARACTER VARYING,
+    IN    p_age     INTEGER
+)
+LANGUAGE 'plpgsql'
+AS
+$$
+BEGIN
+    INSERT INTO public."User"
+        ("Name", "Age")
+    VALUES
+        (p_name, p_age)
+
+    RETURNING "UserId" INTO p_user_id;
+END
+$$;
+```
+
+El procedimiento almacenado recibe tres parámetros: `p_user_id`, `p_name` y `p_age`. El parámetro `p_user_id` es de salida, ya que se espera que el procedimiento retorne el `UserId` del usuario insertado.
+
+---
+
+## Codigo de la aplicación
+
+**Modificar el `appsettings.json` para agregar la cadena de conexión a la base de datos.**
+
+***appsettings.json***
+
+```json
+  "DatabaseOptions": {
+    "DatabaseConnection": "Host=host;Database=postgres;Username=postgres;Password=postgres;Port=5432;Pooling=true;"
+  }
+```
+
+* Se debe agregar la sección `DatabaseOptions` con la propiedad `DatabaseConnection` que contiene la cadena de conexión a la base de datos.
+
+Crear la clase que usaremos para almacenar la cadena de conexión dentro del Ioc.
+
+***Helpers/DatabaseOptions.cs***
+```csharp
+public class DatabaseOptions
+{
+    public string DatabaseConnection { get; init; } = string.Empty;
+}
+```
+
+* La clase `DatabaseOptions` contiene una propiedad `DatabaseConnection` que almacenará la cadena de conexión a la base de datos.
+
+Crear el servicio que se encargará de la conexión a la base de datos.
+
+***Services/DatabaseService.cs***
+```csharp
+public class DatabaseService(IOptions<DatabaseOptions> options)
+{
+    private readonly NpgsqlConnection _connection = new (options.Value.DatabaseConnection);
+
+    public NpgsqlConnection Connection
+    {
+        get
+        {
+            if (_connection.State != ConnectionState.Open)
+            {
+                _connection.Open();
+            }
+
+            return _connection;
+        }
+    }
+}
+```
+
+* La clase `DatabaseService` recibe un objeto de tipo `IOptions<DatabaseOptions>` que contiene la cadena de conexión a la base de datos.
+
+* La propiedad `Connection` es de solo lectura y se encarga de abrir la conexión a la base de datos si no está abierta.
+
+Ahora agregamos las clases dentro del Ioc en el `Program.cs`.
+
+***Program.cs***
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+{
+    builder.Services.AddCors();
+    
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    // Agregamos los controladores
+    builder.Services.AddControllers();
+
+    // Agregamos la configuración de la base de datos al contenedor
+    builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(nameof(DatabaseOptions)));
+    
+    // Agregamos el servicio de la base de datos al contenedor
+    builder.Services.AddScoped<DatabaseService>();
+
+    var app = builder.Build();
+
+    // Agregamos el middleware de cors
+    {
+        app.UseCors(x => x
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+    }
+    
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    // Activamos el uso de los controladores
+    app.MapControllers();
+    app.UseHttpsRedirection();
+    app.Run();
+}
+```
+
+* Se agrega la configuración de la base de datos al contenedor de dependencias.
+
+* Se agrega el servicio de la base de datos al contenedor de dependencias.
+
+Creamos el modelo de usuario.
+
+***Models/User.cs***
+```csharp
+public class User
+{
+    public long UserId { get; set; }
+
+    [Required]
+    public string Name { get; set; } = string.Empty;
+    
+    [Required]
+    public int Age { get; set; }
+}
+```
+
+* La clase `User` contiene las propiedades `UserId`, `Name` y `Age` que representan los campos de la tabla `User`.
+
+Creamos el controlador para el usuario.
+
+***Controllers/UserController.cs***
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+public class UserController(DatabaseService databaseService) : ControllerBase
+{
+    [HttpPost]
+    public async Task<IActionResult> InsertUser([FromBody] User user)
+    {
+        DynamicParameters parameters = new();
+        parameters.Add("p_user_id", dbType: DbType.Int64, direction: ParameterDirection.InputOutput);
+        parameters.Add("p_name", user.Name);
+        parameters.Add("p_age", user.Age);
+
+        await databaseService.Connection.ExecuteAsync("public.\"InsertUser\"",
+            parameters, commandType: CommandType.StoredProcedure);
+
+        var id = parameters.Get<long>("p_user_id");
+        return Ok(id);
+    }
+}
+```
+
+* El controlador `UserController` recibe un objeto de tipo `DatabaseService` que se encargará de la conexión a la base de datos.
+
+* El método `InsertUser` recibe un objeto de tipo `User` que representa el usuario a insertar.
+
+* Se crea un objeto de tipo `DynamicParameters` que se encargará de almacenar los parámetros del procedimiento almacenado.
+
+* Se agregan los parámetros `p_user_id`, `p_name` y `p_age` al objeto `parameters`.
+
+* Se ejecuta el procedimiento almacenado `public."InsertUser"` con los parámetros `parameters` y el tipo de comando `CommandType.StoredProcedure`.
+
+* Se obtiene el valor del parámetro `p_user_id` y se retorna como respuesta.
+
+---
+
+> Este post es meramente con fines educativos, no soy un experto en el tema, pero me gusta compartir lo que aprendo.
