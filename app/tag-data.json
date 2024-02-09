@@ -1,4 +1,7 @@
 {
   "next-js": 1,
   "markdown": 1
+  "dapper": 1, 
+  "postgres": 1, 
+  "performance": 1
 }
