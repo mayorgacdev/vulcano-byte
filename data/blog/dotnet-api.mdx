@@ -1,0 +1,385 @@
+---
+title: Introducción a WebAPI con .NET
+date: '2024-03-06'
+tags: ['dotnet', 'csharp', 'api']
+summary: 'pequeña introducción a WebApi con .NET y C#'
+---
+
+Autor: ***[Paulo Mayorga](https://www.facebook.com/jasser.mayorga.12)***
+
+***En este ejemplo se utiliza .NET 8***
+
+El comando `mkdir` en la terminal se utiliza para crear un nuevo directorio o carpeta. Cuando ejecutas `mkdir`, seguido del nombre que deseas para el directorio, la terminal crea un nuevo directorio con ese nombre en el directorio actual en el que te encuentras.
+
+Por otro lado, el comando `cd` significa "change directory" y se utiliza para cambiar el directorio actual en el que estás trabajando. Al ejecutar `cd`, seguido del nombre del directorio al que deseas moverte, la terminal cambia tu ubicación al directorio especificado.
+
+En el contexto de un proyecto, es común crear una carpeta enfocada en ese proyecto para organizar mejor los archivos relacionados con él. Esto ayuda a mantener la estructura de archivos ordenada y facilita la navegación y la gestión del proyecto. Por ejemplo, al crear una carpeta específica para un proyecto llamado "ProyectoX", podrías hacerlo de la siguiente manera en la terminal:
+
+```bash
+mkdir ProyectoX
+cd ProyectoX
+```
+
+# Introducción a API (Interfaz de Programación de Aplicaciones)
+
+Las API son un conjunto de reglas y herramientas que permiten a diferentes aplicaciones y sistemas comunicarse y compartir datos entre sí de manera estructurada y eficiente. En esencia, las API actúan como intermediarios, facilitando la interacción entre distintas partes de un sistema de software o entre sistemas diferentes.
+
+## Proceso de trabajo con una API en .NET C#
+
+Cuando trabajas con una API en el contexto de desarrollo de software utilizando .NET C#, el proceso generalmente implica los siguientes pasos:
+
+1. **Investigación y documentación**: Antes de utilizar una API, es crucial comprender su funcionamiento y las funcionalidades que ofrece. Esto implica revisar la documentación proporcionada por el proveedor de la API, que describe los endpoints disponibles, los parámetros requeridos, el formato de los datos de entrada y salida, y cualquier otra información relevante.
+
+2. **Autenticación y autorización**: Muchas APIs requieren algún tipo de autenticación para acceder a sus servicios. Esto puede implicar el uso de tokens de acceso, claves API, o algún otro mecanismo de autenticación. Es importante entender los métodos de autenticación admitidos por la API y asegurarse de implementarlos correctamente en tu aplicación.
+
+3. **Configuración del entorno de desarrollo**: Para interactuar con una API en tu aplicación .NET C#, generalmente necesitarás configurar un cliente HTTP para enviar solicitudes HTTP a los endpoints de la API y procesar las respuestas recibidas. En el ecosistema de .NET, puedes utilizar bibliotecas como HttpClient para realizar estas operaciones de manera eficiente.
+
+4. **Envío de solicitudes y procesamiento de respuestas**: Una vez configurado el cliente HTTP, puedes comenzar a enviar solicitudes a la API utilizando los endpoints correspondientes. Estas solicitudes pueden ser de diferentes tipos, como GET para recuperar datos, POST para enviar datos nuevos, PUT para actualizar datos existentes, o DELETE para eliminar datos. Después de enviar una solicitud, tu aplicación espera recibir una respuesta de la API, que generalmente está en formato JSON o XML. Es importante procesar esta respuesta de manera adecuada para extraer la información relevante y manejar posibles errores o excepciones.
+
+5. **Gestión de errores y excepciones**: Al interactuar con una API, es fundamental manejar adecuadamente los errores y excepciones que puedan surgir durante el proceso. Esto puede incluir errores de red, errores de autenticación, errores de validación de datos, entre otros. Implementar una gestión robusta de errores te ayudará a mejorar la confiabilidad y estabilidad de tu aplicación.
+
+En resumen, trabajar con una API en .NET C# implica entender cómo interactuar con los endpoints proporcionados por la API, configurar un cliente HTTP para enviar y recibir solicitudes, procesar las respuestas recibidas y manejar errores de manera adecuada. Al dominar estos conceptos y prácticas, podrás aprovechar al máximo las funcionalidades ofrecidas por la API en tus aplicaciones .NET C#.
+
+# Creación de WEB API
+
+Para mejorar la creación de una solución y un proyecto de Web API en .NET, podemos agregar algunas explicaciones sobre los comandos y también incluir algunas prácticas recomendadas. Aquí tienes una versión mejorada con explicaciones detalladas:
+
+1. **Crear una carpeta donde guardaremos solo nuestra solución:**
+
+```bash
+mkdir MiSolucion
+cd MiSolucion
+```
+
+2. **Ejecutar los siguientes comandos si y solo si estamos dentro de la carpeta anteriormente creada:**
+
+```bash
+dotnet new sln -n Library
+```
+
+Explicación: Este comando crea una nueva solución de .NET con el nombre especificado (-n). Una solución es un contenedor para uno o más proyectos relacionados.
+
+```bash
+dotnet new webapi --use-controllers -n Library.Api
+```
+
+Explicación: Este comando crea un nuevo proyecto de Web API de .NET con el nombre especificado (-n). La opción --use-controllers indica que deseamos incluir un controlador de API por defecto en nuestro proyecto. Un controlador de API es una clase que maneja las solicitudes HTTP.
+
+```bash
+dotnet sln add Library.Api
+```
+
+Explicación: Este comando agrega el proyecto recién creado a la solución. Especificamos la ruta del archivo .csproj del proyecto que queremos agregar.
+
+por ultimo abrimos la solución en Visual Studio Code con el comando
+
+```bash
+code .
+```
+Explicación: Este comando abre nuestro proyecto
+
+Con estas explicaciones, los comandos y sus argumentos deberían ser más claros.
+
+**Estudiar acerca de Listas en C#**
+
+<a href="https://learn.microsoft.com/es-es/dotnet/csharp/tour-of-csharp/tutorials/arrays-and-collections">Microsoft</a>
+
+<a href="https://www.netmentor.es/entrada/listas-csharp">NetMentor</a>
+
+<a href="https://oregoom.com/c-sharp/listas/">Oregom</a>
+
+<a href="https://csharp.net-tutorials.com/es/389/collections-colecciones/lists-listas/">dotnet</a>
+
+Puede elegir cualquiera de esos enlaces para estudiar Listas en C# a continuación muestro como hacer un CRUD sencillo en C# si aún no has estudiado algunos de los enlaces, no continúes aquí. De lo contrario, sigue este ejemplo:
+
+Para poder hacer un CRUD con listas, debemos pensar en un tipo de dato. En este caso, podemos ocupar la clase `Book`.
+
+En la solución de la API, navega a tu proyecto `Library` que creaste anteriormente.
+
+1. **Crear una Carpeta llamada `Entities`**
+
+Puedes hacerlo desde Visual Studio si prefieres o desde la consola con el siguiente comando:
+
+```bash
+mkdir Entities
+```
+
+2. **Dentro de esa carpeta crear una clase llamada Book**
+
+```csharp
+using System;
+
+/// <summary>
+/// Entidad que representa un libro.
+/// </summary>
+public class Book
+{
+    /// <summary>
+    /// Identificador único del libro.
+    /// </summary>
+    public Guid BookId { get; private set; }
+
+    /// <summary>
+    /// Título del libro.
+    /// </summary>
+    public string Title { get; private set; }
+
+    /// <summary>
+    /// Edición del libro.
+    /// </summary>
+    public string Edition { get; private set; }
+
+    /// <summary>
+    /// Descripción del libro.
+    /// </summary>
+    public string Description { get; private set; }
+
+    /// <summary>
+    /// Método estático para crear una nueva instancia de la clase Book.
+    /// </summary>
+    /// <param name="title">Título del libro.</param>
+    /// <param name="edition">Edición del libro.</param>
+    /// <param name="description">Descripción del libro.</param>
+    /// <returns>Una nueva instancia de la clase Book con los valores especificados.</returns>
+    public static Book CreateNew(string title, string edition, string description)
+        => new()
+        {
+            BookId = Guid.NewGuid(),
+            Title = title,
+            Edition = edition,
+            Description = description
+        };
+}
+```
+No es necesario copiar los "summary" pero es buena práctica hacerlo
+
+2. **Crear Carpeta llamada Repositories**
+
+Dentro de esta carpeta crear una clase llamada `BookRepository` se utiliza el nombre de la entidad y agregamos la palabra `Repository` esto para seguir con buenas prácticas de desarrollo
+
+3. **Ahora toca escribir el CRUD**
+
+```csharp
+namespace Library.Api;
+
+using System;
+using System.Collections.Generic;
+
+/// <summary>
+/// Clase que representa un repositorio de libros.
+/// </summary>
+public class BookRepository
+{
+    // Lista de libros almacenada en el repositorio
+    private readonly List<Book> Books =
+    [
+        // Se inicializa con algunos libros predefinidos
+        Book.CreateNew("To Kill a Mockingbird", "Primera edición", "Un clásico de la literatura estadounidense escrito por Harper Lee."),
+        Book.CreateNew("1984", "Segunda edición", "Una novela distópica escrita por George Orwell."),
+        Book.CreateNew("The Great Gatsby", "Tercera edición", "Una obra maestra de F. Scott Fitzgerald que explora temas de decadencia y el sueño americano."),
+        Book.CreateNew("Pride and Prejudice", "Cuarta edición", "Una novela romántica de Jane Austen."),
+        Book.CreateNew("The Catcher in the Rye", "Quinta edición", "Una novela que sigue a un adolescente en Nueva York."),
+        Book.CreateNew("To Kill a Mockingbird", "Sexta edición", "Un clásico de la literatura estadounidense escrito por Harper Lee."),
+        Book.CreateNew("1984", "Séptima edición", "Una novela distópica escrita por George Orwell."),
+        Book.CreateNew("The Great Gatsby", "Octava edición", "Una obra maestra de F. Scott Fitzgerald que explora temas de decadencia y el sueño americano."),
+        Book.CreateNew("Pride and Prejudice", "Novena edición", "Una novela romántica de Jane Austen."),
+        Book.CreateNew("The Catcher in the Rye", "Décima edición", "Una novela que sigue a un adolescente en Nueva York.")
+    ];
+
+    /// <summary>
+    /// Método para agregar un libro al repositorio.
+    /// </summary>
+    /// <param name="book">El libro que se agregará al repositorio.</param>
+    public void AddBook(Book book) => Books.Add(book);
+
+    /// <summary>
+    /// Método para obtener todos los libros del repositorio.
+    /// </summary>
+    /// <returns>Una lista de libros del repositorio.</returns>
+    public IReadOnlyList<Book> GetBooks() => Books;
+    
+    /// <summary>
+    /// Método para actualizar un libro en el repositorio.
+    /// </summary>
+    /// <param name="bookToUpdate">El libro que se actualizará en el repositorio.</param>
+    /// <returns>True si se actualiza correctamente, de lo contrario, False.</returns>
+    public bool UpdateBook(Guid bookId, Book bookToUpdate)
+    {
+        // Verificar si el libro existe en la lista y obtener su índice
+        (bool noExist, int index) = IsDefined(bookId);
+
+        // Si no existe, devolver false
+        if (noExist) return false;
+
+        // Actualizar el libro en la lista
+        Books[index] = bookToUpdate;
+
+        return true;
+    }
+
+    /// <summary>
+    /// Método para eliminar un libro del repositorio.
+    /// </summary>
+    /// <param name="bookId">El identificador del libro que se eliminará del repositorio.</param>
+    /// <returns>True si se elimina correctamente, de lo contrario, False.</returns>
+    public bool RemoveBook(Guid bookId)
+    {
+        // Verificar si el libro existe en la lista y obtener su índice
+        (bool noExist, int index) = IsDefined(bookId);
+        
+        // Si no existe, devolver false
+        if (noExist) return false;
+
+        // Eliminar el libro de la lista
+        Books.Remove(Books[index]);
+
+        return true;
+    }
+
+    // Método privado para verificar si un libro existe en la lista y obtener su índice
+    private (bool, int) IsDefined(Guid bookId)
+    {
+        // Buscar el índice del libro en la lista
+        int index = Books.FindIndex(book => book.BookId.Equals(bookId));    
+
+        // Si el índice es menor que 0, significa que el libro no existe
+        return (index < 0, index);
+    }
+}
+```
+## Introducción al protocolo HTTP 
+
+Método HTTP GET
+
+# HTTP: Protocolo de Transferencia de Hipertexto
+
+HTTP, o Protocolo de Transferencia de Hipertexto (Hypertext Transfer Protocol), es un protocolo de comunicación utilizado para la transferencia de datos en la World Wide Web (WWW). Funciona como un protocolo cliente-servidor en el que el cliente envía una solicitud HTTP al servidor y este último responde con una respuesta HTTP.
+
+## Funcionamiento del Protocolo HTTP
+
+### Cliente-Servidor
+
+En una comunicación HTTP, hay dos partes involucradas: el cliente y el servidor. El cliente es típicamente un navegador web o una aplicación que realiza solicitudes HTTP, y el servidor es el sistema que aloja los recursos web y responde a las solicitudes del cliente.
+
+### Solicitud HTTP (HTTP Request)
+
+Cuando un cliente quiere acceder a un recurso en un servidor web, envía una solicitud HTTP al servidor. Esta solicitud contiene información sobre el recurso solicitado y cualquier otra información relevante, como encabezados HTTP, parámetros de consulta y, opcionalmente, un cuerpo de solicitud que puede contener datos adicionales.
+
+### Métodos HTTP (HTTP Methods)
+
+Los métodos HTTP especifican la acción que el cliente quiere realizar en el recurso identificado. Algunos de los métodos HTTP más comunes son:
+
+- **GET:** Se utiliza para solicitar datos de un recurso específico del servidor.
+- **POST:** Se utiliza para enviar datos al servidor, como los datos de un formulario HTML.
+- **PUT:** Se utiliza para enviar datos al servidor para crear o actualizar un recurso en una ubicación específica.
+- **DELETE:** Se utiliza para solicitar al servidor que elimine el recurso especificado.
+
+### Respuesta HTTP (HTTP Response)
+
+Una vez que el servidor recibe la solicitud HTTP, procesa la solicitud y envía una respuesta HTTP al cliente. Esta respuesta contiene un código de estado que indica si la solicitud fue exitosa o si ocurrió algún error, junto con cualquier dato o recurso solicitado. Además, la respuesta puede contener encabezados HTTP adicionales para proporcionar más información sobre la respuesta.
+
+### Códigos de Estado HTTP
+
+Los códigos de estado HTTP son números de tres dígitos que indican el resultado de la solicitud. Algunos códigos de estado comunes incluyen:
+
+- **200 OK:** La solicitud fue exitosa.
+- **404 Not Found:** El recurso solicitado no fue encontrado en el servidor.
+- **500 Internal Server Error:** Se produjo un error en el servidor mientras procesaba la solicitud.
+
+En fin, HTTP es el protocolo fundamental que permite la comunicación entre clientes y servidores en la web, facilitando la transferencia de datos y recursos entre ellos mediante solicitudes y respuestas estructuradas. Los diferentes métodos HTTP permiten a los clientes realizar diversas acciones, como obtener datos, enviar datos al servidor, actualizar recursos y eliminar recursos.
+
+Creación de API con repositorio en memoria usando el patrón repository:
+
+```csharp
+namespace Library.Api.Controllers;
+
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+
+/// <summary>
+/// Controlador que gestiona las operaciones CRUD (Crear, Leer, Actualizar, Eliminar) de libros.
+/// </summary>
+[Route("api/[controller]")]
+[ApiController]
+public class BooksController : ControllerBase
+{
+    private readonly BookRepository _bookRepository;
+
+    /// <summary>
+    /// Constructor del controlador de libros.
+    /// </summary>
+    public BooksController()
+    {
+        _bookRepository = new();
+    }
+
+    /// <summary>
+    /// Obtiene todos los libros del repositorio.
+    /// </summary>
+    /// <returns>Una lista de todos los libros del repositorio.</returns>
+    [HttpGet]
+    public IActionResult GetBooks()
+    {
+        // Se llama al método GetBooks del repositorio para obtener todos los libros
+        IReadOnlyList<Book> books = _bookRepository.GetBooks();
+        return Ok(books); // Se retorna un código de estado 200 (OK) con la lista de libros
+    }
+
+    /// <summary>
+    /// Agrega un nuevo libro al repositorio.
+    /// </summary>
+    /// <param name="book">El libro que se agregará al repositorio.</param>
+    /// <returns>Una respuesta HTTP que indica el éxito de la operación.</returns>
+    [HttpPost]
+    public IActionResult AddBook([FromBody] Book book)
+    {
+        // Se llama al método AddBook del repositorio para agregar un nuevo libro
+        _bookRepository.AddBook(book);
+        // Se retorna un código de estado 201 (Created) con la ubicación del nuevo libro agregado
+        return CreatedAtAction(nameof(GetBooks), new { }, book);
+    }
+
+    /// <summary>
+    /// Actualiza un libro existente en el repositorio.
+    /// </summary>
+    /// <param name="bookId">El identificador único del libro que se actualizará.</param>
+    /// <param name="book">Los datos actualizados del libro.</param>
+    /// <returns>Una respuesta HTTP que indica el éxito de la operación.</returns>
+    [HttpPut("{bookId}")]
+    public IActionResult UpdateBook(Guid bookId, [FromBody] Book book)
+    {
+        // Se llama al método UpdateBook del repositorio para actualizar el libro
+        bool updated = _bookRepository.UpdateBook(bookId, book);
+        // Si el libro no existe en el repositorio, se retorna un código de estado 404 (Not Found)
+        if (!updated)
+        {
+            return NotFound();
+        }
+        // Se retorna un código de estado 204 (No Content) para indicar que la actualización fue exitosa
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Elimina un libro del repositorio.
+    /// </summary>
+    /// <param name="bookId">El identificador único del libro que se eliminará.</param>
+    /// <returns>Una respuesta HTTP que indica el éxito de la operación.</returns>
+    [HttpDelete("{bookId}")]
+    public IActionResult RemoveBook(Guid bookId)
+    {
+        // Se llama al método RemoveBook del repositorio para eliminar el libro
+        bool removed = _bookRepository.RemoveBook(bookId);
+        // Si el libro no existe en el repositorio, se retorna un código de estado 404 (Not Found)
+        if (!removed)
+        {
+            return NotFound();
+        }
+        // Se retorna un código de estado 204 (No Content) para indicar que la eliminación fue exitosa
+        return NoContent();
+    }
+}
+```
+Este repo contiene errores pero es solo para luego sumergirnos en inyección de dependencias
+
+Aún no hemos llegado a DTOs y Request de la forma correcta de momento esta es una de las maneras "sencillas" para comprender una API
